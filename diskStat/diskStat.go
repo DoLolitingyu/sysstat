@@ -65,7 +65,6 @@ func GetDiskStat() map[string]DiskStat {
 		}
 		stat, err := LineToStat(fields)
 		if err != nil {
-			fmt.Println(err)
 			continue
 		}
 		diskStats[stat.Device] = stat
