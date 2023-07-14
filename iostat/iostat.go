@@ -42,8 +42,8 @@ type DiskStatDiff struct {
 }
 
 
-func IsPartition(device *string) (r bool) {
-	return partition.MatchString(*device)
+func IsPartition(device string) (r bool) {
+	return partition.MatchString(device)
 }
 
 // GetData iostat implement in Golang.
