@@ -22,7 +22,7 @@ type CPUStats struct {
 	Idle   float64
 }
 
-func GetData() ([]CPUStats,error){
+func GetData() ([]CPUStats, error){
 	prevStats, err := GetCPUStats()
 	if err != nil {
 		return []CPUStats{}, err

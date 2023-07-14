@@ -47,12 +47,12 @@ func IsPartition(device string) (r bool) {
 }
 
 // GetData iostat implement in Golang.
-func GetData() (diskStat.ExtendedIoStats, error) {
+func GetData() ([]diskStat.ExtendedIoStats, error) {
 	prevStat := diskStat.GetDiskStat()
 	time.Sleep(time.Second)
 	stat := diskStat.GetDiskStat()
 
-	eIoStat := diskStat.ExtendedIoStats{}
+	eIoStats := []diskStat.ExtendedIoStats{}
 	for _, prePartition := range prevStat {
 		// ignore partitions
 		if IsPartition(prePartition.Device) {
@@ -65,10 +65,11 @@ func GetData() (diskStat.ExtendedIoStats, error) {
 
 		diffStat, err := getDiffDiskStat(&prePartition, &partition)
 		if nil != err {
-			return eIoStat, err
+			return eIoStats, err
 		}
 
 		timeDiffMilli := getTimeDiffMilli(diffStat.RecordTime)
+		eIoStat := diskStat.ExtendedIoStats{}
 		eIoStat.Device = diffStat.Device
 		eIoStat.ReadsMerged = getOneSecondAvg(diffStat.ReadsMerged, timeDiffMilli)
 		eIoStat.WritesMerged = getOneSecondAvg(diffStat.WritesMerged, timeDiffMilli)
@@ -86,8 +87,10 @@ func GetData() (diskStat.ExtendedIoStats, error) {
 
 		eIoStat.Util = getUtilization(diffStat.MillisDoingIo, timeDiffMilli)
 		eIoStat.Svctm = getAvgServiceTime(diffStat.IoTotal, timeDiffMilli, eIoStat.Util)
+
+		eIoStats = append(eIoStats, eIoStat)
 	}
-	return eIoStat, nil
+	return eIoStats, nil
 }
 
 
