@@ -6,8 +6,8 @@ import (
 	"regexp"
 	"time"
 	
-	"github.com/DoLolitingyu/goiostat/diskStat"
-	"github.com/DoLolitingyu/goiostat/systemCall"
+	"github.com/DoLolitingyu/sysstat/diskStat"
+	"github.com/DoLolitingyu/sysstat/systemCall"
 
 )
 
