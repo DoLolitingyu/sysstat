@@ -53,8 +53,11 @@ func GetData() (diskStat.ExtendedIoStats, error) {
 	stat := diskStat.GetDiskStat()
 
 	eIoStat := diskStat.ExtendedIoStats{}
-	//ignore partitions with no history of activity
 	for _, prePartition := range prevStat {
+		// ignore partitions
+		if IsPartition(prePartition.Device) {
+			continue
+		}
 		partition, ok := stat[prePartition.Device]
 		if !ok {
 			continue
@@ -71,8 +74,9 @@ func GetData() (diskStat.ExtendedIoStats, error) {
 		eIoStat.WritesMerged = getOneSecondAvg(diffStat.WritesMerged, timeDiffMilli)
 		eIoStat.Writes = getOneSecondAvg(diffStat.WritesCompleted, timeDiffMilli)
 		eIoStat.Reads = getOneSecondAvg(diffStat.ReadsCompleted, timeDiffMilli)
-		eIoStat.SectorsRead = getOneSecondAvg(diffStat.SectorsRead, timeDiffMilli) / BToKB
-		eIoStat.SectorsWrite = getOneSecondAvg(diffStat.SectorsWrite, timeDiffMilli) / BToKB
+		// should format round
+		eIoStat.SectorsRead = getFloatRound(getOneSecondAvg(diffStat.SectorsRead, timeDiffMilli) / BToKB)
+		eIoStat.SectorsWrite = getFloatRound(getOneSecondAvg(diffStat.SectorsWrite, timeDiffMilli) / BToKB)
 
 		eIoStat.Arqsz = getAvgRequestSize(diffStat.SectorsTotalRaw, diffStat.IoTotal)
 		eIoStat.AvgQueueSize = getAvgQueueSize(diffStat.WeightedMillisDoingIo, timeDiffMilli)
@@ -89,12 +93,12 @@ func GetData() (diskStat.ExtendedIoStats, error) {
 
 func getTimeDiffMilli(diff float64) float64 {
 	r := diff / 1000000.0
-	return math.Round(r*100) / 100
+	return getFloatRound(r)
 }
 
 func getOneSecondAvg(diff float64, time float64) float64 {
 	r := float64(diff/time) * oneSecondInMilli
-	return math.Round(r*100) / 100
+	return getFloatRound(r)
 }
 
 func getDiffDiskStat(old *diskStat.DiskStat, cur *diskStat.DiskStat) (r DiskStatDiff, err error) {
@@ -179,7 +183,7 @@ func getDiff(old int64, cur int64) (r float64, err error) {
 		return
 	}
 	r = float64(cur - old)
-	return math.Round(r*100) / 100, nil
+	return getFloatRound(r), nil
 }
 
 //getDiffUint64 gets old and current stat.
@@ -189,7 +193,7 @@ func getDiffUint64(old uint64, cur uint64) (r float64, err error) {
 		return
 	}
 	r = float64(cur - old)
-	return math.Round(r*100) / 100, nil
+	return getFloatRound(r), nil
 }
 
 //getAvgRequestSize get the avg request size for a disk.
@@ -199,13 +203,13 @@ func getAvgRequestSize(diffSectorsTotalRaw float64, diffIoTotal float64) (r floa
 		return
 	}
 	r = float64(diffSectorsTotalRaw) / float64(diffIoTotal)
-	return math.Round(r*100) / 100
+	return getFloatRound(r)
 }
 
 //getAvgQueueSize get the avg queue size for a disk.
 func getAvgQueueSize(diffWeightedMillisDoingIo float64, time float64) (r float64) {
 	r = diffWeightedMillisDoingIo / time
-	return math.Round(r*100) / 100
+	return getFloatRound(r)
 }
 
 //getAwait get average wait time for a disk.
@@ -216,7 +220,7 @@ func getAwait(diffMillisWriting float64, diffMillisReading float64, diffIoTotal 
 	}
 	totalRW := diffMillisWriting + diffMillisReading
 	r = totalRW / diffIoTotal
-	return math.Round(r*100) / 100
+	return getFloatRound(r)
 
 }
 
@@ -227,7 +231,7 @@ func getSingleAwait(diffIo float64, diffMillis float64) (r float64) {
 		return
 	}
 	r = diffMillis / diffIo
-	return math.Round(r*100) / 100
+	return getFloatRound(r)
 }
 
 //getAvgServiceTime get the avg service time for a disk.
@@ -240,7 +244,7 @@ func getAvgServiceTime(diffIoTotal float64, time float64, util float64) (r float
 		return
 	}
 	r = util / tput
-	return math.Round(r*100) / 100
+	return getFloatRound(r)
 }
 
 //getUtilization get a single disks utilization percentage
@@ -249,6 +253,9 @@ func getUtilization(diffMillisDoingIo float64, time float64) (r float64) {
 	if r > 100.00 {
 		r = 100.00
 	}
-	return math.Round(r*100) / 100
+	return getFloatRound(r)
 }
 
+func getFloatRound(r float64) float64 {
+	return math.Round(r*100) / 100
+}

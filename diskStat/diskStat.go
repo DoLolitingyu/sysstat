@@ -35,8 +35,8 @@ type ExtendedIoStats struct {
 	Device       string
 	ReadsMerged  float64
 	WritesMerged float64
-	Writes       float64
 	Reads        float64
+	Writes       float64
 	SectorsRead  float64
 	SectorsWrite float64
 	Arqsz        float64
@@ -44,8 +44,8 @@ type ExtendedIoStats struct {
 	Await        float64
 	RAwait       float64
 	WAwait       float64
-	Util         float64
 	Svctm        float64
+	Util         float64
 }
 
 func GetDiskStat() map[string]DiskStat {
