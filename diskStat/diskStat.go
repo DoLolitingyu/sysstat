@@ -4,7 +4,6 @@ package diskStat
 import (
 	"bufio"
 	"errors"
-	"fmt"
 	"os"
 	"strconv"
 	"strings"
