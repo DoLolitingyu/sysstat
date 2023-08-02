@@ -239,7 +239,8 @@ func getSingleAwait(diffIo float64, diffMillis float64) (r float64) {
 
 //getAvgServiceTime get the avg service time for a disk.
 func getAvgServiceTime(diffIoTotal float64, time float64, util float64) (r float64) {
-	hz := systemCall.GetClockTicksPerSecond()
+	//hz := systemCall.GetClockTicksPerSecond()
+	hz := 100
 	tput := diffIoTotal * float64(hz) / time
 
 	if tput <= 0 {
