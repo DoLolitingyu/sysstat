@@ -7,8 +7,6 @@ import (
 	"time"
 	
 	"github.com/DoLolitingyu/sysstat/diskStat"
-	"github.com/DoLolitingyu/sysstat/systemCall"
-
 )
 
 var LastRawStat = make(map[string]diskStat.DiskStat)
